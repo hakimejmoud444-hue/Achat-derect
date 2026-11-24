@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achat derect</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; background: var(--bg); color: #1e293b; padding-bottom: 40px; }
+        
+        /* Header & Logo */
+        header {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo-box { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .logo-svg { width: 52px; height: 52px; background: white; border-radius: 50%; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        h1 { margin: 0; font-size: 1.6rem; letter-spacing: 1px; font-family: sans-serif; }
+        .live-clock { font-size: 0.85rem; opacity: 0.9; margin-top: 5px; background: rgba(0,0,0,0.2); display: inline-block; padding: 3px 12px; border-radius: 20px; }
+
+        /* Alert Toast Banner */
+        .alert-toast {
+            position: fixed;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            z-index: 999;
+            font-weight: bold;
+            font-size: 0.95rem;
+            border-right: 5px solid #22c55e;
+            max-width: 92%;
+            text-align: center;
+            animation: popIn 0.25s ease;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translate(-50%, -10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        .container { max-width: 800px; margin: 15px auto; padding: 0 12px; }
+
+        /* Login Screen */
+        .login-card {
+            background: var(--card);
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .role-title-badge {
+            background: #eff6ff;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        input[type="password"], input[type="text"], input[type="number"], select, textarea {
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px;
+            font-size: 1rem; margin-bottom: 12px; outline: none; text-align: center;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 1.1rem; font-weight: bold; color: white; cursor: pointer; transition: 0.2s;
+            text-decoration: none; display: inline-block;
+        }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--secondary); }
+        .btn-warning { background: var(--warning); }
+        .btn-danger { background: var(--danger); width: auto; padding: 6px 12px; font-size: 0.85rem; }
+        .btn-sound { background: #0284c7; width: auto; padding: 6px 10px; font-size: 0.85rem; }
+        .btn-call { background: #16a34a; width: auto; padding: 6px 10px; font-size: 0.85rem; }
+        .btn-sm { padding: 8px 12px; font-size: 0.9rem; width: auto; }
+
+        /* Supplier Sections (Maria) */
+        .supplier-card {
+            background: var(--card); border-radius: 14px; margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0;
+        }
+        .supplier-header {
+            background: #f8fafc; padding: 14px 16px; font-weight: bold; font-size: 1.1rem;
+            border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; color: var(--primary);
+        }
+        .items-grid { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+        .item-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+        .item-info { display: flex; flex-direction: column; text-align: right; }
+        .item-name { font-weight: 600; font-size: 0.95rem; }
+        .item-unit { font-size: 0.75rem; color: #64748b; }
+        .item-qty { width: 70px !important; margin: 0 !important; padding: 6px !important; text-align: center; font-weight: bold; }
+
+        /* Add custom item & Emoji bar */
+        .box-card {
+            background: var(--card); padding: 16px; border-radius: 14px; margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+        }
+        .emoji-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        .emoji-btn {
+            background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px;
+            padding: 6px 10px; font-size: 1.2rem; cursor: pointer;
+        }
+        .emoji-btn:hover { background: #e2e8f0; }
+
+        /* Hakim Cards */
+        .order-card {
+            background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 15px;
+            border-right: 6px solid var(--warning); box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+        }
+        .order-meta { font-size: 0.85rem; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .order-list { list-style: none; padding: 0; margin: 0 0 12px 0; }
+        .order-list li {
+            padding: 8px; border-bottom: 1px dashed #e2e8f0; display: flex;
+            justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+        }
+        .status-badge {
+            padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;
+        }
+        .status-wait { background: #fef3c7; color: #b45309; }
+        .note-box { background: #eff6ff; padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 12px; color: #1e40af; }
+
+        /* Table */
+        .table-wrapper { overflow-x: auto; background: var(--card); border-radius: 14px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th, td { padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        th { background: #f8fafc; color: var(--primary); }
+        .hidden { display: none !important; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; flex-wrap: wrap; }
+        .top-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-box">
+        <!-- شعار كروسة سائقها راجل -->
+        <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="28" r="8" fill="#1e3a8a"/>
+            <path d="M24 38 L24 62 L15 82 M24 62 L33 82 M24 45 L42 52" stroke="#1e3a8a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M40 52 L48 52 L54 70 L84 70 L90 48 L47 48" stroke="#059669" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="#d1fae5"/>
+            <circle cx="62" cy="43" r="6" fill="#f59e0b"/>
+            <circle cx="75" cy="42" r="7" fill="#ef4444"/>
+            <circle cx="68" cy="80" r="8" stroke="#1e3a8a" stroke-width="4" fill="#fff"/>
+            <circle cx="68" cy="80" r="2" fill="#1e3a8a"/>
+        </svg>
+        <div>
+            <h1>Achat derect</h1>
+            <div class="live-clock" id="liveClock">جاري تحميل الوقت...</div>
+        </div>
+    </div>
+</header>
+
+<div id="alertToast" class="alert-toast hidden"></div>
+
+<div class="container">
+
+    <!-- شاشة استخراج الروابط (تظهر فقط عند فتح الرابط الرئيسي العام) -->
+    <div id="setupLinksView" class="login-card hidden">
+        <h2>🔗 روابط التطبيق الخاصة</h2>
+        <p style="color:#64748b; font-size:0.95rem;">انسخ كل رابط وأرسله لصاحبه ليفتح جهته مباشرة في تيلفونو:</p>
+        
+        <div style="margin: 20px 0; display:flex; flex-direction:column; gap:12px;">
+            <button class="btn btn-primary" onclick="copyAndOpen('maria')">👩‍💼 نسخ رابط مارية (الكود: 123456)</button>
+            <button class="btn btn-success" onclick="copyAndOpen('hakim')">👨‍💼 نسخ رابط حكيم (الكود: 1234)</button>
+        </div>
+    </div>
+
+    <!-- شاشة تسجيل الدخول المخصصة لكل رابط -->
+    <div id="loginView" class="login-card hidden">
+        <div id="roleTitleBadge" class="role-title-badge"></div>
+        <p style="color:#64748b">أدخل الكود السري للدخول مباشرة</p>
+        
+        <input type="password" id="pinInput" placeholder="••••••" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter') login()">
+        <button class="btn btn-primary" onclick="login()">دخول 🔓</button>
+        <p id="loginError" style="color:var(--danger); font-size:0.9rem; margin-top:10px;"></p>
+    </div>
+
+    <!-- واجهة مارية فقط -->
+    <div id="mariaView" class="hidden">
+        <div class="top-bar">
+            <h3>مرحبا مارية</h3>
+            <div class="top-actions">
+                <a class="btn btn-call" href="tel:0665633613">📵 اتصال حكيم</a>
+                <button class="btn btn-sound" onclick="enableNotificationsAndSound('update')">🔔 صوت</button>
+                <button class="btn btn-danger" onclick="logout()">قفل 🔒</button>
+            </div>
+        </div>
+
+        <div id="suppliersContainer"></div>
+
+        <div class="box-card">
+            <h4>➕ زيادة سلعة جديدة</h4>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <select id="newItemSupplier">
+                    <option value="الحاج العطار">مشتريات الحاج العطار</option>
+                    <option value="حسن بعرور">مشتريات حسن بعرور</option>
+                    <option value="مهدي مول زيتون">مشتريات مهدي مول زيتون</option>
+                    <option value="libary soussi">مشتريات libary soussi</option>
+                </select>
+                <select id="newItemUnit">
+                    <option value="كلغ">كلغ (Kg)</option>
+                    <option value="لتر">لتر (L)</option>
+                    <option value="خنشة 25 كلغ">خنشة 25 كلغ</option>
+                    <option value="pk">باكية (pk)</option>
+                    <option value="حبة / علبة">حبة / علبة</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="newItemName" style="text-align:right;" placeholder="اسم السلعة الجديدة (مثلاً: روز 🍚)">
+                <button class="btn btn-secondary btn-sm" style="background:var(--secondary); height:46px;" onclick="addCustomItem()">إضافة ✅</button>
+            </div>
+        </div>
+
+        <div class="box-card">
+            <h4>📝 ملاحظة إلى حكيم</h4>
+            <div class="emoji-bar">
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '👍')">👍</button>
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '🙏')">🙏</button>
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '⚡')">⚡</button>
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '❗')">❗</button>
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '🛒')">🛒</button>
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '✅')">✅</button>
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '❤️')">❤️</button>
+                <button type="button" class="emoji-btn" onclick="addEmoji('mariaNote', '📦')">📦</button>
+            </div>
+            <textarea id="mariaNote" rows="2" style="text-align:right;" placeholder="اكتبي ملاحظتك هنا لحكيم..."></textarea>
+            <button class="btn btn-primary" onclick="sendOrderToHakim()">إرسال إلى حكيم 🚀</button>
+        </div>
+
+        <div class="box-card">
+            <h4>📋 سجل الكوموندات المقبولة (يُمسح تلقائياً كل شهرين)</h4>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>السلعة والكمية</th>
+                            <th>المورد</th>
+                            <th>تاريخ وساعة القبول</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mariaAcceptedTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- واجهة حكيم فقط -->
+    <div id="hakimView" class="hidden">
+        <div class="top-bar">
+            <h3>مرحبا حكيم</h3>
+            <div class="top-actions">
+                <a class="btn btn-call" href="tel:0665056380">📵 اتصال مارية</a>
+                <button class="btn btn-sound" onclick="enableNotificationsAndSound('order')">🔔 صوت</button>
+                <button class="btn btn-danger" onclick="logout()">قفل 🔒</button>
+            </div>
+        </div>
+
+        <div class="box-card">
+            <h4>💬 إرسال إيموجي / إشارة سريعة</h4>
+            <div class="emoji-bar" style="margin-bottom:0;">
+                <button type="button" class="emoji-btn" onclick="sendHakimEmoji('👍 وصلات')">👍 وصلات</button>
+                <button type="button" class="emoji-btn" onclick="sendHakimEmoji('🚚 أنا فطريق')">🚚 أنا فطريق</button>
+                <button type="button" class="emoji-btn" onclick="sendHakimEmoji('✅ تقضات')">✅ تقضات</button>
+                <button type="button" class="emoji-btn" onclick="sendHakimEmoji('⏳ شوية ونجيبها')">⏳ شوية ونجيبها</button>
+                <button type="button" class="emoji-btn" onclick="sendHakimEmoji('📞 عيطي ليا')">📞 عيطي ليا</button>
+            </div>
+            <div id="hakimStatusDisplay" style="margin-top:8px; font-size:0.9rem; color:var(--secondary); font-weight:bold;"></div>
+        </div>
+
+        <h3>📦 الطلبات الواردة</h3>
+        <div id="hakimOrdersContainer"></div>
+
+        <div class="box-card">
+            <h4>✅ جدول المشتريات التي تم جلبها (يُمسح كل شهرين)</h4>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>السلعة والكمية</th>
+                            <th>المورد</th>
+                            <th>التاريخ والساعة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hakimAcceptedTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const DB_URL = "PUT_YOUR_FIREBASE_URL_HERE";
+
+    const ROLE_PASSWORDS = {
+        maria: "123456",
+        hakim: "1234"
+    };
+
+    const DEFAULT_CATALOG = {
+        "الحاج العطار": [
+            { name: "🌾 الدقيق ديال 25", unit: "خنشة 25 كلغ" },
+            { name: "🌾 العولة الدقيق ديال 25", unit: "خنشة 25 كلغ" },
+            { name: "🌳 الشجرة الدقيق ديال 25", unit: "خنشة 25 كلغ" },
+            { name: "🌾 القمح", unit: "كلغ" },
+            { name: "🧀 فرماج حمر", unit: "كلغ" },
+            { name: "🥛 كريم فريش", unit: "لتر" },
+            { name: "🫒 زيت العود", unit: "لتر" },
+            { name: "🧊 سكر", unit: "كلغ" },
+            { name: "☕ قهوة", unit: "كلغ" },
+            { name: "🍬 سكر اتاي", unit: "كلغ" },
+            { name: "🍃 اتاي الدحميس", unit: "كلغ" },
+            { name: "🥚 البيض", unit: "بلاطو / حبة" },
+            { name: "🧽 جيكس", unit: "حبة" },
+            { name: "🧹 الشطابة", unit: "حبة" },
+            { name: "🧴 أجاكس زجاج", unit: "لتر" },
+            { name: "🧼 اوني", unit: "لتر" }
+        ],
+        "حسن بعرور": [
+            { name: "🍊 الليمون", unit: "كلغ" },
+            { name: "🥒 الكرجيت", unit: "كلغ" },
+            { name: "🍠 الباربة", unit: "كلغ" },
+            { name: "🍋 الحامض", unit: "كلغ" },
+            { name: "🥒 الخيار", unit: "كلغ" },
+            { name: "🥔 اللفت", unit: "كلغ" },
+            { name: "🎃 الكرعة", unit: "كلغ" },
+            { name: "🥬 المكور", unit: "كلغ" },
+            { name: "🍆 الدنجان", unit: "كلغ" },
+            { name: "🌿 الربيع", unit: "كلغ / ربطة" },
+            { name: "🌱 النعناع", unit: "كلغ / ربطة" },
+            { name: "🌿 الشيبة", unit: "كلغ / ربطة" },
+            { name: "🍑 الشهدية", unit: "كلغ" },
+            { name: "🍑 الخوخ", unit: "كلغ" },
+            { name: "🍊 المشماش", unit: "كلغ" },
+            { name: "🍍 اناناس", unit: "كلغ" },
+            { name: "🥭 المونك", unit: "كلغ" },
+            { name: "🍋 سترون", unit: "كلغ" },
+            { name: "🍌 البنان", unit: "كلغ" },
+            { name: "🍐 بوعويد", unit: "كلغ" }
+        ],
+        "مهدي مول زيتون": [
+            { name: "🥩 الخليع", unit: "كلغ" },
+            { name: "🫒 زيتون اسود", unit: "كلغ" },
+            { name: "🫒 زيتون اخضر", unit: "كلغ" },
+            { name: "🥗 زيتون اخضر مقطع", unit: "كلغ" },
+            { name: "🥗 زيتون اسود مقطع", unit: "كلغ" },
+            { name: "🥜 املو", unit: "كلغ" },
+            { name: "🍯 العسل", unit: "كلغ" }
+        ],
+        "libary soussi": [
+            { name: "✉️ ضرف", unit: "pk" },
+            { name: "🖊️ ستيلو", unit: "pk" },
+            { name: "🧻 رولو", unit: "pk" },
+            { name: "📄 اوراق", unit: "pk" }
+        ]
+    };
+
+    let currentRole = null;
+    let isLoggedIn = false;
+    let audioCtx = null;
+    let lastOrderCount = null;
+    let lastAcceptedCount = null;
+    let lastHakimEmoji = null;
+
+    let appState = {
+        catalog: JSON.parse(JSON.stringify(DEFAULT_CATALOG)),
+        orders: [],
+        acceptedHistory: [],
+        hakimQuickEmoji: ""
+    };
+
+    function unlockAudio() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    async function requestBrowserNotificationPermission() {
+        if (!("Notification" in window)) return;
+        if (Notification.permission === "default") {
+            try {
+                await Notification.requestPermission();
+            } catch (e) {}
+        }
+    }
+
+    function sendBrowserNotification(title, body) {
+        if (!("Notification" in window)) return;
+        if (Notification.permission === "granted") {
+            try {
+                const n = new Notification(title, {
+                    body: body,
+                    vibrate: [180, 90, 180],
+                    tag: "achat-derect-alert",
+                    renotify: true
+                });
+                n.onclick = function() {
+                    window.focus();
+                    this.close();
+                };
+            } catch (e) {}
+        }
+    }
+
+    function playNotificationSound(type = 'order') {
+        unlockAudio();
+        if (!audioCtx) return;
+
+        const now = audioCtx.currentTime;
+        const notes = type === 'order' ? [659.25, 880, 1046.5] : [587.33, 783.99];
+
+        notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+
+            gain.gain.setValueAtTime(0.001, now + idx * 0.14);
+            gain.gain.exponentialRampToValueAtTime(0.35, now + idx * 0.14 + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.28);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.14);
+            osc.stop(now + idx * 0.14 + 0.3);
+        });
+
+        if (navigator.vibrate) {
+            navigator.vibrate([180, 90, 180]);
+        }
+    }
+
+    async function enableNotificationsAndSound(type = 'order') {
+        await requestBrowserNotificationPermission();
+        playNotificationSound(type);
+        const statusMsg = Notification.permission === "granted"
+            ? "🔔 تم تفعيل الصوت وإشعارات المتصفح!"
+            : "🔊 تم تفعيل الصوت (فعّلي إشعارات المتصفح من الإعدادات)";
+        showAlertToast(statusMsg);
+    }
+
+    let toastTimer = null;
+    function showAlertToast(message) {
+        const toast = document.getElementById('alertToast');
+        toast.innerText = message;
+        toast.classList.remove('hidden');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.add('hidden'), 4500);
+    }
+
+    function notifyUser(message, soundType = 'order') {
+        playNotificationSound(soundType);
+        showAlertToast(message);
+        sendBrowserNotification("Achat derect", message);
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        document.getElementById('liveClock').innerText = "📅 " + now.toLocaleDateString('ar-MA', options);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function getFormattedDateTime() {
+        const now = new Date();
+        const date = now.toLocaleDateString('ar-MA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        const time = now.toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' });
+        return `${date} - ${time}`;
+    }
+
+    window.onload = async function() {
+        document.body.addEventListener('click', unlockAudio, { once: true });
+        document.body.addEventListener('touchstart', unlockAudio, { once: true });
+
+        const params = new URLSearchParams(window.location.search);
+        const urlRole = params.get('role');
+
+        if (urlRole === 'maria') {
+            currentRole = 'maria';
+            document.getElementById('hakimView').remove();
+            document.getElementById('setupLinksView').remove();
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('roleTitleBadge').innerText = "جهة مارية";
+        } else if (urlRole === 'hakim') {
+            currentRole = 'hakim';
+            document.getElementById('mariaView').remove();
+            document.getElementById('setupLinksView').remove();
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('roleTitleBadge').innerText = "جهة حكيم";
+        } else {
+            document.getElementById('setupLinksView').classList.remove('hidden');
+        }
+
+        await loadData(false);
+        checkTwoMonthsCleanup();
+    };
+
+    function copyAndOpen(role) {
+        unlockAudio();
+        const baseUrl = window.location.origin + window.location.pathname;
+        const fullUrl = `${baseUrl}?role=${role}`;
+        navigator.clipboard.writeText(fullUrl);
+        alert(`تم نسخ رابط ${role === 'maria' ? 'مارية' : 'حكيم'}:\n${fullUrl}`);
+        window.location.href = fullUrl;
+    }
+
+    async function login() {
+        unlockAudio();
+        const pin = document.getElementById('pinInput').value.trim();
+        if (pin === ROLE_PASSWORDS[currentRole]) {
+            await requestBrowserNotificationPermission();
+            isLoggedIn = true;
+            lastOrderCount = (appState.orders || []).length;
+            lastAcceptedCount = (appState.acceptedHistory || []).length;
+            lastHakimEmoji = appState.hakimQuickEmoji || "";
+
+            document.getElementById('loginView').classList.add('hidden');
+            if (currentRole === 'maria') {
+                document.getElementById('mariaView').classList.remove('hidden');
+                renderMariaCatalog();
+            } else if (currentRole === 'hakim') {
+                document.getElementById('hakimView').classList.remove('hidden');
+            }
+            renderAll();
+            playNotificationSound('update');
+            setInterval(() => loadData(true), 4000);
+        } else {
+            document.getElementById('loginError').innerText = "❌ الكود غير صحيح!";
+        }
+    }
+
+    function logout() {
+        location.reload();
+    }
+
+    async function saveData() {
+        localStorage.setItem('achat_derect_data', JSON.stringify(appState));
+        if (DB_URL && DB_URL.startsWith('http')) {
+            try {
+                await fetch(`${DB_URL}/achatData.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(appState)
+                });
+            } catch (e) { console.error("Sync error:", e); }
+        }
+    }
+
+    async function loadData(notifyOnChange = true) {
+        let fetched = null;
+        if (DB_URL && DB_URL.startsWith('http')) {
+            try {
+                const res = await fetch(`${DB_URL}/achatData.json`);
+                fetched = await res.json();
+            } catch (e) { console.error("Fetch error:", e); }
+        }
+
+        if (!fetched) {
+            const local = localStorage.getItem('achat_derect_data');
+            if (local) fetched = JSON.parse(local);
+        }
+
+        if (fetched) {
+            const nextOrders = fetched.orders || [];
+            const nextAccepted = fetched.acceptedHistory || [];
+            const nextEmoji = fetched.hakimQuickEmoji || "";
+
+            if (isLoggedIn && notifyOnChange) {
+                if (currentRole === 'hakim' && lastOrderCount !== null && nextOrders.length > lastOrderCount) {
+                    notifyUser("🔔 وصلك كوموند جديد من مارية!", 'order');
+                }
+                if (currentRole === 'maria') {
+                    if (lastAcceptedCount !== null && nextAccepted.length > lastAcceptedCount) {
+                        notifyUser("✅ حكيم أكسيبتا سلعة جديدة!", 'update');
+                    } else if (lastHakimEmoji !== null && nextEmoji && nextEmoji !== lastHakimEmoji) {
+                        notifyUser("💬 إشعار من حكيم: " + nextEmoji, 'update');
+                    }
+                }
+            }
+
+            lastOrderCount = nextOrders.length;
+            lastAcceptedCount = nextAccepted.length;
+            lastHakimEmoji = nextEmoji;
+
+            appState = {
+                catalog: fetched.catalog || DEFAULT_CATALOG,
+                orders: nextOrders,
+                acceptedHistory: nextAccepted,
+                hakimQuickEmoji: nextEmoji
+            };
+            renderAll();
+        }
+    }
+
+    function checkTwoMonthsCleanup() {
+        const TWO_MONTHS_MS = 60 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        if (appState.acceptedHistory && appState.acceptedHistory.length > 0) {
+            const initialLen = appState.acceptedHistory.length;
+            appState.acceptedHistory = appState.acceptedHistory.filter(row => (now - row.timestamp) < TWO_MONTHS_MS);
+            if (appState.acceptedHistory.length !== initialLen) {
+                saveData();
+            }
+        }
+    }
+
+    function renderMariaCatalog() {
+        const container = document.getElementById('suppliersContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        for (const [supplier, items] of Object.entries(appState.catalog)) {
+            const card = document.createElement('div');
+            card.className = 'supplier-card';
+            let itemsHtml = items.map((item) => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-unit">العبار: ${item.unit}</span>
+                    </div>
+                    <input type="number" min="0" step="0.5" placeholder="0" class="item-qty" 
+                           data-supplier="${supplier}" data-name="${item.name}" data-unit="${item.unit}">
+                </div>
+            `).join('');
+
+            card.innerHTML = `
+                <div class="supplier-header" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <span>🏪 مشتريات ${supplier}</span>
+                    <span>🔽</span>
+                </div>
+                <div class="items-grid">${itemsHtml}</div>
+            `;
+            container.appendChild(card);
+        }
+    }
+
+    async function addCustomItem() {
+        unlockAudio();
+        const supplier = document.getElementById('newItemSupplier').value;
+        const unit = document.getElementById('newItemUnit').value;
+        const name = document.getElementById('newItemName').value.trim();
+        if (!name) return alert("اكتبي اسم السلعة أولاً!");
+
+        if (!appState.catalog[supplier]) appState.catalog[supplier] = [];
+        appState.catalog[supplier].push({ name: "🆕 " + name, unit: unit });
+        document.getElementById('newItemName').value = '';
+        await saveData();
+        renderMariaCatalog();
+        playNotificationSound('update');
+        showAlertToast("تمت إضافة السلعة بنجاح ✅");
+    }
+
+    function addEmoji(targetId, emoji) {
+        unlockAudio();
+        const el = document.getElementById(targetId);
+        el.value += emoji;
+    }
+
+    async function sendOrderToHakim() {
+        unlockAudio();
+        const inputs = document.querySelectorAll('.item-qty');
+        const selectedItems = [];
+        inputs.forEach(inp => {
+            const val = parseFloat(inp.value);
+            if (val && val > 0) {
+                selectedItems.push({
+                    id: Date.now() + Math.random().toString(36).substr(2, 5),
+                    supplier: inp.dataset.supplier,
+                    name: inp.dataset.name,
+                    unit: inp.dataset.unit,
+                    qty: val,
+                    status: 'pending'
+                });
+                inp.value = '';
+            }
+        });
+
+        const note = document.getElementById('mariaNote').value.trim();
+        if (selectedItems.length === 0 && !note) {
+            return alert("⚠️ اختاري سلعة واحدة على الأقل أو اكتبي ملاحظة!");
+        }
+
+        const newOrder = {
+            orderId: Date.now(),
+            createdAt: getFormattedDateTime(),
+            note: note,
+            items: selectedItems
+        };
+
+        appState.orders.unshift(newOrder);
+        lastOrderCount = appState.orders.length;
+        document.getElementById('mariaNote').value = '';
+        await saveData();
+        renderAll();
+        playNotificationSound('update');
+        showAlertToast("✅ تم إرسال الكوموند إلى حكيم بنجاح!");
+    }
+
+    async function updateItemStatus(orderId, itemId, newStatus) {
+        unlockAudio();
+        const order = appState.orders.find(o => o.orderId === orderId);
+        if (!order) return;
+        const item = order.items.find(i => i.id === itemId);
+        if (!item) return;
+
+        item.status = newStatus;
+
+        if (newStatus === 'accepted') {
+            appState.acceptedHistory.unshift({
+                itemText: `${item.name} (${item.qty} ${item.unit})`,
+                supplier: item.supplier,
+                dateTime: getFormattedDateTime(),
+                timestamp: Date.now()
+            });
+            lastAcceptedCount = appState.acceptedHistory.length;
+        }
+
+        const allAccepted = order.items.every(i => i.status === 'accepted');
+        if (allAccepted && order.items.length > 0) {
+            appState.orders = appState.orders.filter(o => o.orderId !== orderId);
+        }
+
+        lastOrderCount = appState.orders.length;
+        await saveData();
+        renderAll();
+        playNotificationSound('update');
+        showAlertToast(newStatus === 'accepted' ? "✅ تمت إضافة السلعة للجدول" : "⏳ تم وضع السلعة في الانتظار");
+    }
+
+    async function sendHakimEmoji(msg) {
+        unlockAudio();
+        appState.hakimQuickEmoji = `${msg} (${getFormattedDateTime()})`;
+        lastHakimEmoji = appState.hakimQuickEmoji;
+        await saveData();
+        renderAll();
+        playNotificationSound('update');
+        showAlertToast("تم إرسال الإشارة: " + msg);
+    }
+
+    function renderAll() {
+        const rowsHtml = (appState.acceptedHistory || []).map(row => `
+            <tr>
+                <td><strong>${row.itemText}</strong></td>
+                <td>${row.supplier}</td>
+                <td>🕒 ${row.dateTime}</td>
+            </tr>
+        `).join('') || '<tr><td colspan="3" style="text-align:center; color:#94a3b8;">لا توجد مشتريات مقبولة حالياً</td></tr>';
+
+        const mariaTable = document.getElementById('mariaAcceptedTable');
+        const hakimTable = document.getElementById('hakimAcceptedTable');
+        if (mariaTable) mariaTable.innerHTML = rowsHtml;
+        if (hakimTable) hakimTable.innerHTML = rowsHtml;
+
+        const statusDisp = document.getElementById('hakimStatusDisplay');
+        if (statusDisp && appState.hakimQuickEmoji) {
+            statusDisp.innerText = "آخر إشارة مرسلة: " + appState.hakimQuickEmoji;
+        }
+
+        const hakimContainer = document.getElementById('hakimOrdersContainer');
+        if (!hakimContainer) return;
+
+        if (!appState.orders || appState.orders.length === 0) {
+            hakimContainer.innerHTML = '<div class="box-card" style="text-align:center; color:#64748b;">🎉 لا توجد طلبات جديدة حالياً</div>';
+            return;
+        }
+
+        hakimContainer.innerHTML = appState.orders.map(order => {
+            const itemsList = order.items.map(item => {
+                if (item.status === 'accepted') return '';
+                const isWaiting = item.status === 'waiting';
+                return `
+                    <li>
+                        <div>
+                            <strong>${item.name}</strong> — <span style="color:var(--primary); font-weight:bold;">${item.qty} ${item.unit}</span>
+                            <br><small style="color:#64748b">🏪 ${item.supplier}</small>
+                            ${isWaiting ? '<span class="status-badge status-wait">⏳ في الانتظار</span>' : ''}
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn btn-success btn-sm" onclick="updateItemStatus(${order.orderId}, '${item.id}', 'accepted')">✅ جات (Accept)</button>
+                            <button class="btn btn-warning btn-sm" onclick="updateItemStatus(${order.orderId}, '${item.id}', 'waiting')">⏳ في الانتظار</button>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+
+            return `
+                <div class="order-card">
+                    <div class="order-meta">
+                        <span>📅 وقت الطلب: ${order.createdAt}</span>
+                        <span>طلب #${order.orderId.toString().slice(-4)}</span>
+                    </div>
+                    ${order.note ? `<div class="note-box">📝 <strong>ملاحظة:</strong> ${order.note}</div>` : ''}
+                    <ul class="order-list">${itemsList}</ul>
+                </div>
+            `;
+        }).join('');
+    }
+</script>
+
+</body>
+</html>
