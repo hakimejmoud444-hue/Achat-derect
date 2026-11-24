@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Achat derect</title>
+  <style>
+    :root {
+      --primary: #15803d;
+      --primary-dark: #166534;
+      --accent: #f59e0b;
+      --bg: #f3f6f4;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --danger: #dc2626;
+      --wait: #d97706;
+    }
+
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 48px; }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 2px 10px rgba(0,0,0,.12);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-title { font-size: 1.2rem; font-weight: 800; letter-spacing: .3px; }
+    .brand-sub { font-size: .78rem; opacity: .9; }
+    .sync-pill {
+      font-size: .74rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      display: inline-block;
+      margin-top: 3px;
+    }
+
+    .container { max-width: 920px; margin: 16px auto; padding: 0 12px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.04);
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .supplier-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+
+    .supplier-header {
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #d1d5db;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .item-row {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .item-name { font-size: .92rem; font-weight: 600; }
+    .item-unit { font-size: .75rem; color: var(--muted); background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+
+    input[type="number"], input[type="text"], input[type="password"], select, textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: .95rem;
+      background: #fff;
+    }
+
+    .qty-input { width: 78px !important; text-align: center; padding: 6px !important; }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: .95rem;
+      transition: .15s;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-accent { background: var(--accent); color: #111827; }
+    .btn-outline { background: #fff; color: var(--text); border: 1px solid #cbd5e1; }
+    .btn-sm { padding: 6px 10px; font-size: .82rem; border-radius: 8px; }
+
+    .emoji-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .emoji-btn {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .row-flex { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .grow { flex: 1 1 180px; }
+
+    .order-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+    .badge-wait { background: #fef3c7; color: #92400e; }
+    .badge-ok { background: #dcfce7; color: #166534; }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: 8px; text-align: right; }
+    th { background: #f8fafc; font-weight: 800; }
+
+    .link-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: .85rem;
+      word-break: break-all;
+      margin-top: 8px;
+    }
+
+    .hidden { display: none !important; }
+    .lock-screen { max-width: 420px; margin: 48px auto; text-align: center; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Achat derect">
+      <circle cx="32" cy="32" r="30" fill="#ffffff" fill-opacity="0.16"/>
+      <circle cx="19" cy="17" r="5" fill="#fde047"/>
+      <path d="M14 25H24L22 38H16L14 25Z" fill="#ffffff"/>
+      <path d="M16 38L13 50M22 38L25 50" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M23 28L31 31" stroke="#fde047" stroke-width="3" stroke-linecap="round"/>
+      <path d="M31 28H53L49 41H34L31 28Z" fill="#fbbf24" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M28 24H31L34 41" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="37" cy="48" r="3.5" fill="#ffffff"/>
+      <circle cx="47" cy="48" r="3.5" fill="#ffffff"/>
+    </svg>
+    <div>
+      <div class="brand-title">Achat derect</div>
+      <div class="brand-sub" id="roleSubtitle">نظام المشتريات المباشر</div>
+      <div class="sync-pill" id="syncStatus">جاري الاتصال...</div>
+    </div>
+  </div>
+  <button class="btn btn-outline btn-sm" onclick="switchRolePrompt()">تبديل الجهة</button>
+</header>
+
+<div id="authScreen" class="container lock-screen">
+  <div class="card">
+    <h2 style="margin-top:0">الدخول إلى Achat derect</h2>
+    <p style="color:var(--muted); font-size:.9rem">اختر الجهة وأدخل الكود السري (1234)</p>
+
+    <div class="row-flex" style="margin-bottom:12px">
+      <button class="btn btn-primary grow" onclick="selectRole('maria')">جهة مارية</button>
+      <button class="btn btn-accent grow" onclick="selectRole('hakim')">جهة حكيم</button>
+    </div>
+
+    <div id="pinBox" class="hidden">
+      <p id="pinLabel" style="font-weight:700; margin:8px 0"></p>
+      <input type="password" id="pinInput" placeholder="أدخل الكود (1234)" maxlength="10" style="text-align:center; margin-bottom:10px" />
+      <button class="btn btn-primary" style="width:100%" onclick="verifyPin()">دخول</button>
+      <p id="pinError" style="color:var(--danger); font-size:.85rem; margin-top:8px"></p>
+    </div>
+
+    <div class="link-box" id="directLinks"></div>
+  </div>
+</div>
+
+<div id="mariaView" class="container hidden">
+  <div class="card">
+    <div class="section-title">
+      <span>🛒 قائمة المشتريات — جهة مارية</span>
+      <span id="mariaCycleNote" style="font-size:.8rem; color:var(--muted)"></span>
+    </div>
+
+    <div id="suppliersContainer"></div>
+
+    <div class="supplier-box" style="background:#f0fdf4; border-color:#bbf7d0">
+      <div class="supplier-header">➕ إضافة سلعة جديدة</div>
+      <div class="row-flex">
+        <div class="grow">
+          <select id="newItemSupplier">
+            <option value="مشتريات الحاج العطار">مشتريات الحاج العطار</option>
+            <option value="مشتريات حسن بعرور">مشتريات حسن بعرور</option>
+            <option value="مشتريات مهدي مول الزيتون">مشتريات مهدي مول الزيتون</option>
+            <option value="مشتريات libary soussi">مشتريات libary soussi</option>
+          </select>
+        </div>
+        <div class="grow">
+          <input type="text" id="newItemName" placeholder="اسم السلعة الجديدة" />
+        </div>
+        <div style="width:120px">
+          <input type="number" id="newItemQty" placeholder="الكمية" step="0.1" min="0" />
+        </div>
+        <div style="width:110px">
+          <select id="newItemUnit">
+            <option value="كلغ">كلغ</option>
+            <option value="لتر">لتر</option>
+            <option value="pk">pk</option>
+            <option value="حبة">حبة</option>
+          </select>
+        </div>
+        <button class="btn btn-accent btn-sm" onclick="addCustomItem()">إضافة للقائمة</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label style="font-weight:700; display:block; margin-bottom:6px">📝 ملاحظة إلى حكيم:</label>
+      <textarea id="mariaNote" rows="2" placeholder="اكتب ملاحظتك هنا..."></textarea>
+      <div class="emoji-bar" id="mariaEmojis"></div>
+    </div>
+
+    <div style="margin-top:14px">
+      <button class="btn btn-primary" style="width:100%; padding:12px" onclick="sendOrderToHakim()">🚀 إرسال إلى حكيم</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <span>✅ جدول الكومندات اللي أكسيبتاها حكيم (يتنظف كل شهرين)</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>المواد</th>
+            <th>ملاحظة</th>
+            <th>التاريخ والساعة</th>
+          </tr>
+        </thead>
+        <tbody id="mariaAcceptedTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="hakimView" class="container hidden">
+  <div class="card">
+    <div class="section-title">
+      <span>📦 طلبات مارية — جهة حكيم</span>
+      <span id="hakimCycleNote" style="font-size:.8rem; color:var(--muted)"></span>
+    </div>
+    <div id="hakimOrdersList"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <span>📋 جدول السلعة اللي جات (التاريخ والساعة — يتنظف كل شهرين)</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>السلعة والكمية</th>
+            <th>ملاحظة</th>
+            <th>التاريخ والساعة</th>
+          </tr>
+        </thead>
+        <tbody id="hakimAcceptedTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+  const SECRET_PIN = "1234";
+  const TWO_MONTHS_MS = 60 * 24 * 60 * 60 * 1000;
+  const EMOJIS = ["👍", "⚡", "🔥", "✅", "🙏", "📦", "🥬", "🐟", "🍎", "⚠️"];
+
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDERCJHUHWiIOUHkVDFZOsCVXSQObgZ3TE",
+    authDomain: "achat-derct.firebaseapp.com",
+    databaseURL: "https://achat-derct-default-rtdb.firebaseio.com",
+    projectId: "achat-derct",
+    storageBucket: "achat-derct.firebasestorage.app",
+    messagingSenderId: "389884159135",
+    appId: "1:389884159135:web:451bd78d4f2ffb1fa6eeaa",
+    measurementId: "G-DPJLEL740C"
+  };
+
+  const INITIAL_CATALOG = {
+    "مشتريات الحاج العطار": [
+      { name: "الدقيق 25 العولة", unit: "كلغ" },
+      { name: "الدقيق 25 الشجرة", unit: "كلغ" },
+      { name: "الدقيق 25 القمح", unit: "كلغ" },
+      { name: "فرماج أحمر", unit: "كلغ" },
+      { name: "كريم فريش", unit: "لتر" },
+      { name: "زيت العود", unit: "لتر" },
+      { name: "سكر قهوة", unit: "كلغ" },
+      { name: "سكر أتاي", unit: "كلغ" },
+      { name: "أتاي الدحميس", unit: "كلغ" },
+      { name: "البيض", unit: "حبة" },
+      { name: "جيكس", unit: "حبة" },
+      { name: "الشطابة", unit: "حبة" },
+      { name: "أجاكس", unit: "لتر" },
+      { name: "زجاج أوني", unit: "لتر" }
+    ],
+    "مشتريات حسن بعرور": [
+      { name: "الليمون", unit: "كلغ" },
+      { name: "الكرجيت", unit: "كلغ" },
+      { name: "الباربة", unit: "كلغ" },
+      { name: "الحامض", unit: "كلغ" },
+      { name: "الخيار", unit: "كلغ" },
+      { name: "اللفت", unit: "كلغ" },
+      { name: "الكرعة", unit: "كلغ" },
+      { name: "المكور", unit: "كلغ" },
+      { name: "الدنجان", unit: "كلغ" },
+      { name: "الربيع", unit: "كلغ" },
+      { name: "النعناع", unit: "كلغ" },
+      { name: "الشيبة", unit: "كلغ" },
+      { name: "الشهدية", unit: "كلغ" },
+      { name: "الخوخ", unit: "كلغ" },
+      { name: "المشماش", unit: "كلغ" },
+      { name: "أناناس", unit: "كلغ" },
+      { name: "المونغ", unit: "كلغ" },
+      { name: "سيترون", unit: "كلغ" },
+      { name: "البنان", unit: "كلغ" },
+      { name: "بوعويد", unit: "كلغ" }
+    ],
+    "مشتريات مهدي مول الزيتون": [
+      { name: "الخليع", unit: "كلغ" },
+      { name: "زيتون أسود", unit: "كلغ" },
+      { name: "زيتون أخضر", unit: "كلغ" },
+      { name: "زيتون أخضر مقطع", unit: "كلغ" },
+      { name: "زيتون أسود مقطع", unit: "كلغ" },
+      { name: "أملو", unit: "كلغ" },
+      { name: "العسل", unit: "كلغ" }
+    ],
+    "مشتريات libary soussi": [
+      { name: "ظرف", unit: "حبة" },
+      { name: "ستيلو", unit: "حبة" },
+      { name: "رولو", unit: "حبة" },
+      { name: "أوراق", unit: "pk" }
+    ]
+  };
+
+  let activeRole = null;
+  let pendingRole = null;
+  let dbRef = null;
+
+  let state = {
+    cycleStart: Date.now(),
+    catalog: JSON.parse(JSON.stringify(INITIAL_CATALOG)),
+    orders: [],
+    acceptedLog: []
+  };
+
+  function normalizeState(raw) {
+    return {
+      cycleStart: raw.cycleStart || Date.now(),
+      catalog: raw.catalog || JSON.parse(JSON.stringify(INITIAL_CATALOG)),
+      orders: Array.isArray(raw.orders) ? raw.orders : [],
+      acceptedLog: Array.isArray(raw.acceptedLog) ? raw.acceptedLog : []
+    };
+  }
+
+  function initCloudOrLocal() {
+    if (window.firebase && FIREBASE_CONFIG.apiKey) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      dbRef = firebase.database().ref("achat_derct_main_v1");
+      document.getElementById("syncStatus").textContent = "🟢 متصل أونلاين";
+
+      dbRef.on("value", (snap) => {
+        const cloudData = snap.val();
+        if (cloudData) {
+          state = normalizeState(cloudData);
+          checkTwoMonthReset();
+          refreshActiveUI();
+        } else {
+          saveState();
+        }
+      }, () => {
+        document.getElementById("syncStatus").textContent = "⚠️ تحقق من قاعدة البيانات";
+      });
+    } else {
+      document.getElementById("syncStatus").textContent = "🟡 وضع محلي";
+      const localRaw = JSON.parse(localStorage.getItem("achat_derect_state_v1") || "null");
+      if (localRaw) state = normalizeState(localRaw);
+      checkTwoMonthReset();
+      refreshActiveUI();
+    }
+  }
+
+  function checkTwoMonthReset() {
+    const now = Date.now();
+    if (now - (state.cycleStart || now) >= TWO_MONTHS_MS) {
+      state.cycleStart = now;
+      state.acceptedLog = [];
+      state.orders = state.orders.filter(o => o.status === "pending");
+      saveState();
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem("achat_derect_state_v1", JSON.stringify(state));
+    if (dbRef) {
+      dbRef.set(state);
+    }
+  }
+
+  function formatDateTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleString("ar-MA", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function formatHourMonth(ts) {
+    const d = new Date(ts);
+    const month = d.toLocaleString("ar-MA", { month: "long" });
+    const time = d.toLocaleTimeString("ar-MA", { hour: "2-digit", minute: "2-digit" });
+    return `${time} — شهر ${month}`;
+  }
+
+  function buildDirectLinks() {
+    const base = window.location.href.split("?")[0];
+    document.getElementById("directLinks").innerHTML = `
+      <div><strong>رابط مارية:</strong> <a href="${base}?role=maria">${base}?role=maria</a></div>
+      <div style="margin-top:4px"><strong>رابط حكيم:</strong> <a href="${base}?role=hakim">${base}?role=hakim</a></div>
+    `;
+  }
+
+  function selectRole(role) {
+    pendingRole = role;
+    document.getElementById("pinBox").classList.remove("hidden");
+    document.getElementById("pinLabel").textContent = role === "maria" ? "دخول جهة مارية" : "دخول جهة حكيم";
+    document.getElementById("pinError").textContent = "";
+    document.getElementById("pinInput").value = "";
+    document.getElementById("pinInput").focus();
+  }
+
+  function verifyPin() {
+    const val = document.getElementById("pinInput").value.trim();
+    if (val !== SECRET_PIN) {
+      document.getElementById("pinError").textContent = "الكود غير صحيح! الكود هو 1234";
+      return;
+    }
+    openRole(pendingRole);
+  }
+
+  function openRole(role) {
+    activeRole = role;
+    const url = new URL(window.location.href);
+    url.searchParams.set("role", role);
+    window.history.replaceState({}, "", url);
+
+    document.getElementById("authScreen").classList.add("hidden");
+    document.getElementById("mariaView").classList.add("hidden");
+    document.getElementById("hakimView").classList.add("hidden");
+
+    if (role === "maria") {
+      document.getElementById("roleSubtitle").textContent = "جهة مارية — إرسال المشتريات";
+      document.getElementById("mariaView").classList.remove("hidden");
+      renderMaria();
+    } else {
+      document.getElementById("roleSubtitle").textContent = "جهة حكيم — تتبع وتأكيد المشتريات";
+      document.getElementById("hakimView").classList.remove("hidden");
+      renderHakim();
+    }
+  }
+
+  function refreshActiveUI() {
+    if (activeRole === "maria") renderMaria();
+    if (activeRole === "hakim") renderHakim();
+  }
+
+  function switchRolePrompt() {
+    activeRole = null;
+    document.getElementById("mariaView").classList.add("hidden");
+    document.getElementById("hakimView").classList.add("hidden");
+    document.getElementById("authScreen").classList.remove("hidden");
+    document.getElementById("roleSubtitle").textContent = "نظام المشتريات المباشر";
+  }
+
+  function renderEmojis() {
+    const bar = document.getElementById("mariaEmojis");
+    bar.innerHTML = "";
+    EMOJIS.forEach(em => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "emoji-btn";
+      btn.textContent = em;
+      btn.onclick = () => {
+        const ta = document.getElementById("mariaNote");
+        ta.value += (ta.value ? " " : "") + em;
+        ta.focus();
+      };
+      bar.appendChild(btn);
+    });
+  }
+
+  function renderMaria() {
+    renderEmojis();
+    const container = document.getElementById("suppliersContainer");
+    container.innerHTML = "";
+
+    Object.entries(state.catalog).forEach(([supplier, items], sIdx) => {
+      const box = document.createElement("div");
+      box.className = "supplier-box";
+      box.innerHTML = `<div class="supplier-header">${supplier}</div>`;
+
+      const grid = document.createElement("div");
+      grid.className = "items-grid";
+
+      (items || []).forEach((item, iIdx) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        row.innerHTML = `
+          <div>
+            <div class="item-name">${item.name}</div>
+            <span class="item-unit">${item.unit}</span>
+          </div>
+          <input type="number" class="qty-input" min="0" step="0.5" placeholder="0" data-supplier="${sIdx}" data-item="${iIdx}" />
+        `;
+        grid.appendChild(row);
+      });
+
+      box.appendChild(grid);
+      container.appendChild(box);
+    });
+
+    const nextReset = new Date((state.cycleStart || Date.now()) + TWO_MONTHS_MS);
+    document.getElementById("mariaCycleNote").textContent = `التنظيف الدوري القادم: ${nextReset.toLocaleDateString("ar-MA")}`;
+    renderAcceptedTables();
+  }
+
+  function addCustomItem() {
+    const supplier = document.getElementById("newItemSupplier").value;
+    const name = document.getElementById("newItemName").value.trim();
+    const qty = parseFloat(document.getElementById("newItemQty").value);
+    const unit = document.getElementById("newItemUnit").value;
+
+    if (!name) {
+      alert("من فضلك اكتب اسم السلعة");
+      return;
+    }
+
+    if (!state.catalog[supplier]) state.catalog[supplier] = [];
+    state.catalog[supplier].push({ name, unit });
+    saveState();
+    renderMaria();
+
+    if (qty > 0) {
+      const inputs = document.querySelectorAll(".qty-input");
+      const last = inputs[inputs.length - 1];
+      if (last) last.value = qty;
+    }
+
+    document.getElementById("newItemName").value = "";
+    document.getElementById("newItemQty").value = "";
+  }
+
+  function sendOrderToHakim() {
+    const selectedItems = [];
+    const supplierKeys = Object.keys(state.catalog);
+
+    document.querySelectorAll(".qty-input").forEach(inp => {
+      const qty = parseFloat(inp.value);
+      if (qty > 0) {
+        const sIdx = Number(inp.dataset.supplier);
+        const iIdx = Number(inp.dataset.item);
+        const supplier = supplierKeys[sIdx];
+        const item = state.catalog[supplier][iIdx];
+        selectedItems.push({
+          supplier,
+          name: item.name,
+          qty,
+          unit: item.unit
+        });
+      }
+    });
+
+    const note = document.getElementById("mariaNote").value.trim();
+
+    if (selectedItems.length === 0 && !note) {
+      alert("المرجو إدخال كمية لسلعة واحدة على الأقل أو كتابة ملاحظة");
+      return;
+    }
+
+    state.orders.unshift({
+      id: "ord_" + Date.now(),
+      items: selectedItems,
+      note,
+      createdAt: Date.now(),
+      status: "pending",
+      acceptedAt: null
+    });
+
+    saveState();
+    document.querySelectorAll(".qty-input").forEach(i => (i.value = ""));
+    document.getElementById("mariaNote").value = "";
+    alert("تم إرسال الكوموند إلى حكيم بنجاح ✅");
+  }
+
+  function renderHakim() {
+    const list = document.getElementById("hakimOrdersList");
+    list.innerHTML = "";
+
+    const nextReset = new Date((state.cycleStart || Date.now()) + TWO_MONTHS_MS);
+    document.getElementById("hakimCycleNote").textContent = `التنظيف الدوري القادم: ${nextReset.toLocaleDateString("ar-MA")}`;
+
+    if (!state.orders.length) {
+      list.innerHTML = `<p style="color:var(--muted)">لا توجد طلبات حالياً.</p>`;
+    } else {
+      state.orders.forEach(order => {
+        const isAccepted = order.status === "accepted";
+        const itemsText = (order.items || []).map(it => `${it.name} (${it.qty} ${it.unit})`).join("، ");
+        const card = document.createElement("div");
+        card.className = "order-card";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px">
+            <strong>🕒 ${formatHourMonth(order.createdAt)}</strong>
+            <span class="badge ${isAccepted ? "badge-ok" : "badge-wait"}">
+              ${isAccepted ? "أكسيبتي (جات)" : "في الانتظار"}
+            </span>
+          </div>
+          <div style="margin-bottom:6px"><strong>السلعة:</strong> ${itemsText || "—"}</div>
+          ${order.note ? `<div style="margin-bottom:10px; color:#374151"><strong>ملاحظة:</strong> ${order.note}</div>` : ""}
+          <div class="row-flex">
+            <button class="btn btn-primary btn-sm" onclick="setOrderStatus('${order.id}', 'accepted')">✅ أكسيبتي (جات)</button>
+            <button class="btn btn-outline btn-sm" onclick="setOrderStatus('${order.id}', 'pending')">⏳ في الانتظار</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    renderAcceptedTables();
+  }
+
+  function setOrderStatus(orderId, status) {
+    const order = state.orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    order.status = status;
+    if (status === "accepted") {
+      order.acceptedAt = Date.now();
+      const alreadyLogged = state.acceptedLog.some(l => l.id === order.id);
+      if (!alreadyLogged) {
+        state.acceptedLog.unshift({
+          id: order.id,
+          itemsText: (order.items || []).map(it => `${it.name} (${it.qty} ${it.unit})`).join("، ") || "ملاحظة فقط",
+          note: order.note || "—",
+          acceptedAt: order.acceptedAt
+        });
+      }
+    }
+    saveState();
+    renderHakim();
+  }
+
+  function renderAcceptedTables() {
+    const mariaTbody = document.getElementById("mariaAcceptedTable");
+    const hakimTbody = document.getElementById("hakimAcceptedTable");
+
+    const rowsHtml = state.acceptedLog.length
+      ? state.acceptedLog.map(entry => `
+          <tr>
+            <td>${entry.itemsText}</td>
+            <td>${entry.note}</td>
+            <td>${formatDateTime(entry.acceptedAt)}</td>
+          </tr>
+        `).join("")
+      : `<tr><td colspan="3" style="text-align:center; color:var(--muted)">لا توجد عناصر مؤكدة بعد</td></tr>`;
+
+    if (mariaTbody) mariaTbody.innerHTML = rowsHtml;
+    if (hakimTbody) hakimTbody.innerHTML = rowsHtml;
+  }
+
+  buildDirectLinks();
+  initCloudOrLocal();
+  const initialRole = new URLSearchParams(window.location.search).get("role");
+  if (initialRole === "maria" || initialRole === "hakim") {
+    selectRole(initialRole);
+  }
+</script>
+</body>
+</html>
